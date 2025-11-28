@@ -1,0 +1,80 @@
+
+HEALTHCARE FRAUD DETECTION - CLASS IMBALANCE STRATEGY DOCUMENT
+================================================================
+
+Date: 2025-11-28
+Phase: 2 - Class Imbalance Analysis
+Prepared by: Abdallah
+
+1. DATASET CHARACTERISTICS
+   - Total Providers: 5410
+   - Fraudulent Providers: 506 (9.35%)
+   - Legitimate Providers: 4904 (90.65%)
+   - Imbalance Ratio: 9.69:1
+
+2. SELECTED STRATEGY: HYBRID APPROACH
+
+   Primary Method: SMOTE (Synthetic Minority Over-sampling Technique)
+   - Sampling Strategy: 0.5 (fraud class = 50% of majority)
+   - K-neighbors: 5
+   - Random State: 42
+   - Result: 7356 total samples after SMOTE
+
+   Alternative Method: SMOTEENN (SMOTE + Edited Nearest Neighbors)
+   - For noise reduction and cleaner decision boundaries
+   - Removes -1772 samples after SMOTE
+   - Result: 9128 total samples after cleaning
+
+   Baseline Method: Class Weighting
+   - Fraud weight: 5.35
+   - Legit weight: 0.55
+
+3. RATIONALE
+   - SMOTE chosen over undersampling to preserve all legitimate provider data
+   - Moderate sampling strategy (0.5) to avoid overfitting on synthetic samples
+   - Class weighting as baseline for tree-based models (Random Forest, XGBoost)
+   - SMOTEENN for potential model improvement through noise reduction
+
+4. EXPORTED DATASETS FOR PHASE 3
+   a) data_original_with_weights.csv - Original data (use with class_weight parameter)
+   b) data_smote_resampled.csv - SMOTE oversampled data
+   c) data_smoteenn_cleaned.csv - SMOTE + ENN cleaned data
+   d) class_weights.json - Computed class weights for models
+
+5. RECOMMENDED EVALUATION METRICS (Priority Order)
+   1. PR-AUC (Precision-Recall Area Under Curve) - PRIMARY METRIC
+      * Most appropriate for imbalanced classification
+      * Focus on positive class performance
+
+   2. F1-Score
+      * Harmonic mean of precision and recall
+      * Target: > 0.70
+
+   3. Recall (Sensitivity/True Positive Rate)
+      * Minimize false negatives (missing fraud)
+      * Target: > 0.75
+
+   4. Precision (Positive Predictive Value)
+      * Minimize false positives (false accusations)
+      * Target: > 0.65
+
+   5. AVOID: Accuracy
+      * Misleading with 9.7:1 imbalance
+      * Can achieve 90.6% by always predicting "legit"
+
+6. CROSS-VALIDATION STRATEGY
+   - Use Stratified K-Fold (k=5) to maintain class proportions
+   - Apply SMOTE ONLY on training folds (prevent data leakage)
+   - Evaluate on original (unsampled) validation folds
+
+7. KEY FINDINGS FROM EXPLORATORY ANALYSIS
+   Significantly different features between fraud/legit (p < 0.05):
+
+   - total_claim_count: Fraud mean=420.55, Legit mean=70.44
+   - total_sum_amt: Fraud mean=584350.04, Legit mean=53193.72
+   - mean_amt_overall: Fraud mean=3842.80, Legit mean=1523.78
+   - pct_inpatient: Fraud mean=0.33, Legit mean=0.13
+   - unique_beneficiaries: Fraud mean=247.53, Legit mean=49.39
+
+
+================================================================

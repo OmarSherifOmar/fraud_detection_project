@@ -1,0 +1,57 @@
+
+CLASS IMBALANCE STRATEGY DOCUMENTATION
+=======================================
+
+Project: Healthcare Provider Fraud Detection
+Date: 2025-11-28
+Dataset: 5,410 providers (506 fraud, 4,904 legitimate)
+Original Imbalance Ratio: 9.69:1
+
+STRATEGIES IMPLEMENTED
+----------------------
+
+1. CLASS WEIGHTING (Cost-Sensitive Learning)
+   - Method: Assign higher misclassification penalty to minority class
+   - Class weights: {0: 0.55, 1: 5.35}
+   - Dataset size: Original (5,410 samples)
+   - Use case: Tree-based models (Random Forest, XGBoost, LightGBM)
+   - Pros: No data loss, computationally efficient, interpretable
+   - Cons: Limited to algorithms with sample_weight support
+
+2. SMOTE (Synthetic Minority Oversampling Technique)
+   - Method: Generate synthetic fraud samples via k-NN interpolation
+   - Sampling strategy: 0.5 (creates 2:1 ratio, not 1:1)
+   - k_neighbors: 5
+   - Dataset size: ~8,115 samples (after oversampling)
+   - Fraud percentage: ~33%
+   - Pros: Creates diverse synthetic samples, works with any algorithm
+   - Cons: Increased training time, potential overfitting risk
+
+3. SMOTEENN (SMOTE + Edited Nearest Neighbors)
+   - Method: SMOTE oversampling followed by noise removal
+   - Sampling strategy: 0.5 (initial)
+   - Dataset size: ~7,900 samples (after ENN cleaning)
+   - Samples removed: ~215 noisy samples
+   - Pros: Cleaner decision boundaries, reduced overfitting
+   - Cons: Most computationally expensive, may lose edge cases
+
+EVALUATION METRICS
+------------------
+Primary: PR-AUC (Precision-Recall Area Under Curve)
+Secondary: F1-Score, Recall, Precision
+Avoid: Accuracy (misleading with imbalanced data)
+
+RATIONALE FOR CHOICES
+---------------------
+- Class weighting: Baseline approach, no data manipulation
+- SMOTE 0.5: Moderate balancing avoids aggressive oversampling
+- SMOTEENN: Premium approach for highest data quality
+- NO undersampling: Would lose 80% of legitimate provider data
+
+NEXT STEPS (Phase 3)
+--------------------
+1. Train models on all three datasets
+2. Compare performance using PR-AUC and F1-score
+3. Analyze precision-recall trade-offs
+4. Select best approach based on business requirements
+5. Perform cross-validation with stratified folds
