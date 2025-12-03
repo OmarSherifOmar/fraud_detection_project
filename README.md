@@ -1,7 +1,4 @@
-Sure! Here is a **polished, professional, and aesthetic README.md** ready to place directly in your GitHub repository.
-I included emojis, clear sections, and GitHub-friendly formatting.
 
----
 
 # 🏥 Healthcare Provider Fraud Detection
 
